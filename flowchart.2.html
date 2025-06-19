@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Διάγραμμα Ροής - P5.js Εφαρμογή</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #2d3748;
+        }
+        .mermaid {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="mermaid">
+%%{init: {'theme':'dark'}}%%
+flowchart TD
+    A[Έναρξη Προγράμματος] --> B[Αρχικοποίηση Μεταβλητών]
+    
+    B --> B1[Πίνακας δεδομένων points]
+    B --> B2[Leaflet αντικείμενο χάρτη]
+    B --> B3[p5.js καμβάς]
+    B --> B4[showCircles = true]
+    B --> B5[currentSize μεταβλητή]
+    
+    B1 --> C[Προφόρτωση CSV]
+    B2 --> C
+    B3 --> C
+    B4 --> C
+    B5 --> C
+    
+    C --> C1[Ορισμός URL Google Sheet]
+    C1 --> C2[Μορφή CSV με headers]
+    C2 --> D[setup Συνάρτηση]
+    
+    D --> D1[Δημιουργία καμβά]
+    D1 --> D2[Τοποθέτηση στο πάνω μέρος]
+    D2 --> D3[Αρχικοποίηση Leaflet χάρτη]
+    D3 --> D4[Εστίαση στην Αθήνα]
+    D4 --> D5[Custom Mapbox πλακίδια]
+    D5 --> D6[Σύνδεση events χάρτη με redraw]
+    
+    D6 --> D7[Ανάγνωση CSV δεδομένων]
+    D7 --> D8{Για κάθε σημείο}
+    D8 --> D9[Αποθήκευση: lat, lng, φόβος, σκοτάδι, ησυχία]
+    D9 --> D10[Δημιουργία αρχικής ακτίνας]
+    D10 --> D11[Αρχικοποίηση ringHistory]
+    D11 --> D8
+    D8 --> |Τέλος δεδομένων| D12[Δημιουργία UI Elements]
+    
+    D12 --> D13[Κουμπί Hide Circles - πάνω δεξιά]
+    D13 --> D14[Slider μεγέθους - κάτω αριστερά]
+    D14 --> E[draw Loop - Συνεχής εκτέλεση]
+    
+    E --> E1[Καθαρισμός καμβά]
+    E1 --> E2[Ανάγνωση slider τιμής σε currentSize]
+    E2 --> E3{showCircles == true?}
+    
+    E3 --> |Όχι| E31[Τέλος draw loop]
+    E3 --> |Ναι| E4{Για κάθε σημείο pt}
+    
+    E4 --> E5[Μετατροπή lat/lng σε canvas θέση]
+    E5 --> E6[Υπολογισμός adjustedSize βάσει currentSize, fear, zoom]
+    
+    E6 --> E7[Σχεδίαση Σκοταδιού]
+    E7 --> E8[layers = darkness × 40]
+    E8 --> E9{Για κάθε layer}
+    E9 --> E10[Υπολογισμός ακτίνας layer]
+    E10 --> E11[Σχεδίαση μαύρου κύκλου]
+    E11 --> E9
+    E9 --> |Τέλος layers| E12[Animation Ησυχίας]
+    
+    E12 --> E13[Υπολογισμός ταχύτητας κυματισμού βάσει sound τιμής]
+    E13 --> E14[Αύξηση ringRadius]
+    E14 --> E15{ringRadius > adjustedSize?}
+    
+    E15 --> |Ναι| E16[Επαναφορά ringRadius = 0]
+    E16 --> E17[Καθαρισμός ringHistory]
+    E17 --> E18{frameCount % 6 == 0?}
+    
+    E15 --> |Όχι| E18
+    E18 --> |Ναι| E19[Καταγραφή τρέχουσας ακτίνας στο ringHistory]
+    E19 --> E20{ringHistory.length > 40?}
+    E20 --> |Ναι| E21[Διαγραφή παλαιότερης τιμής]
+    E21 --> E22[Σχεδίαση κυματισμών από ιστορικό]
+    E20 --> |Όχι| E22
+    E18 --> |Όχι| E22
+    
+    E22 --> E23{Για κάθε τιμή στο ιστορικό}
+    E23 --> E24[Υπολογισμός opacity & stroke weight]
+    E24 --> E25[Σχεδίαση λευκού κύκλου]
+    E25 --> E23
+    E23 --> |Τέλος ιστορικού| E4
+    E4 --> |Τέλος σημείων| E31
+    
+    E31 --> E[Επανάληψη draw loop]
+    
+    F[mouseMoved Event] --> F1[Κλήση redraw]
+    F1 --> F2[Ενημέρωση καμβά]
+    
+    G[windowResized Event] --> G1[resizeCanvas]
+    G1 --> G2[Επανατοποθέτηση κουμπιού]
+    G2 --> G3[Επανατοποθέτηση slider]
+    G3 --> G4[Κλήση redraw]
+    
+    H[Κουμπί Click Event] --> H1[Εναλλαγή showCircles]
+    H1 --> H2[Αλλαγή χρώματος κουμπιού]
+    H2 --> H3[Κλήση redraw]
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'dark'
+        });
+    </script>
+</body>
+</html>
